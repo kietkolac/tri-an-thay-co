@@ -137,6 +137,7 @@ function updateDisplay() {
     errorMessage.style.color = '#ff72b4';
 }
 
+// ===== Kiểm tra mật khẩu =====
 function checkPassword() {
     if (inputPassword === PASSWORD) {
         errorMessage.textContent = '✓ Đúng rồi! 20/11 vui vẻ! 🎉';
