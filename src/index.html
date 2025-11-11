@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Tri Ân Thầy Cô 20/11</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <!-- Container chính -->
+    <div class="login-container">
+        <div class="login-box">
+            <!-- Ảnh hiển thị từ file local -->
+            <div class="image-section">
+                <img id="titleImage" src="title.png" alt="Title Image">
+            </div>
+
+            <!-- Display số đã nhập -->
+            <div class="password-display">
+                <input type="text" id="passwordDisplay" class="display-input" readonly placeholder="Nhập mật khẩu...">
+            </div>
+
+            <!-- Bàn phím số -->
+            <div class="keypad">
+                <button class="key" data-num="1">1</button>
+                <button class="key" data-num="2">2</button>
+                <button class="key" data-num="3">3</button>
+                
+                <button class="key" data-num="4">4</button>
+                <button class="key" data-num="5">5</button>
+                <button class="key" data-num="6">6</button>
+                
+                <button class="key" data-num="7">7</button>
+                <button class="key" data-num="8">8</button>
+                <button class="key" data-num="9">9</button>
+                
+                <button class="key delete-key" id="deleteBtn">←</button>
+                <button class="key" data-num="0">0</button>
+                <button class="key enter-key" id="enterBtn">⏎</button>
+            </div>
+
+            <!-- Thông báo lỗi -->
+            <div id="errorMessage" class="error-message"></div>
+        </div>
+    </div>
+
+    <!-- Canvas cho hiệu ứng pháo hoa -->
+    <canvas id="fireworks"></canvas>
+
+    <script src="js/main.js"></script>
+</body>
+</html>
