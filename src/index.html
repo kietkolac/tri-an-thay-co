@@ -7,44 +7,79 @@
     <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
+    <!-- Background trái tim bay -->
+    <div class="hearts-background" id="heartsBackground"></div>
+
     <!-- Container chính -->
     <div class="login-container">
-        <div class="login-box">
-            <!-- Ảnh hiển thị từ file local -->
-            <div class="image-section">
-                <img id="titleImage" src="title.png" alt="Title Image">
-            </div>
+        <!-- Màn hình nhập mật khẩu -->
+        <div class="login-screen" id="loginScreen">
+            <div class="login-box">
+            <!-- Avatar tròn -->
+            <div class="avatar-section">
+                <img id="titleImage" src="avatar.png" alt="Avatar" class="avatar">
+            </div>                <!-- Tiêu đề -->
+                <h2 class="login-title">Nhập 1102025 để mở quà ❤️</h2>
 
-            <!-- Display số đã nhập -->
-            <div class="password-display">
-                <input type="text" id="passwordDisplay" class="display-input" readonly placeholder="Nhập mật khẩu...">
-            </div>
+                <!-- Display số đã nhập -->
+                <div class="password-display">
+                    <input type="text" id="passwordDisplay" class="display-input" readonly placeholder="Nhập đây nè <3...">
+                </div>
 
-            <!-- Bàn phím số -->
-            <div class="keypad">
-                <button class="key" data-num="1">1</button>
-                <button class="key" data-num="2">2</button>
-                <button class="key" data-num="3">3</button>
-                
-                <button class="key" data-num="4">4</button>
-                <button class="key" data-num="5">5</button>
-                <button class="key" data-num="6">6</button>
-                
-                <button class="key" data-num="7">7</button>
-                <button class="key" data-num="8">8</button>
-                <button class="key" data-num="9">9</button>
-                
-                <button class="key delete-key" id="deleteBtn">←</button>
-                <button class="key" data-num="0">0</button>
-                <button class="key enter-key" id="enterBtn">⏎</button>
-            </div>
+                <!-- Bàn phím số -->
+                <div class="keypad">
+                    <button class="key" data-num="1">1</button>
+                    <button class="key" data-num="2">2</button>
+                    <button class="key" data-num="3">3</button>
+                    
+                    <button class="key" data-num="4">4</button>
+                    <button class="key" data-num="5">5</button>
+                    <button class="key" data-num="6">6</button>
+                    
+                    <button class="key" data-num="7">7</button>
+                    <button class="key" data-num="8">8</button>
+                    <button class="key" data-num="9">9</button>
+                    
+                    <button class="key delete-key" id="deleteBtn">←</button>
+                    <button class="key" data-num="0">0</button>
+                    <button class="key enter-key" id="enterBtn">⏎</button>
+                </div>
 
-            <!-- Thông báo lỗi -->
-            <div id="errorMessage" class="error-message"></div>
+                <!-- Thông báo lỗi -->
+                <div id="errorMessage" class="error-message"></div>
+            </div>
+        </div>
+
+        <!-- Hộp quà mở ra -->
+        <div class="gift-box" id="giftBox">
+            <div class="gift-box-content">
+                <div class="gift-lid">
+                    <div class="gift-lid-left">For Teacher</div>
+                    <div class="gift-lid-right">Happy 20/11</div>
+                </div>
+                <div class="gift-body"></div>
+            </div>
+        </div>
+
+        <!-- Màn hình quà -->
+        <div class="gift-screen" id="giftScreen">
+            <div class="gift-result-box">
+                <!-- Ảnh quà -->
+                <img id="giftImage" src="" alt="Gift" class="gift-image">
+                
+                <!-- Text chúc -->
+                <p class="gift-message">Chúc thầy cô ngày 20/11 an lành, vui vẻ! 🎉</p>
+                
+                <!-- Text cảm ơn -->
+                <p class="gift-thanks">Cảm ơn vì những bài dạy quý báu!</p>
+                
+                <!-- Nút mở quà -->
+                <button id="openGiftBtn" class="open-gift-btn">Mở Quà ✨</button>
+            </div>
         </div>
     </div>
 
-    <!-- Canvas cho hiệu ứng pháo hoa -->
+    <!-- Canvas cho hiệu ứng -->
     <canvas id="fireworks"></canvas>
 
     <script src="js/main.js"></script>
