@@ -1,29 +1,24 @@
 // ===== CONFIG DỄ CHỈNH =====
 const CONFIG = {
-    // Tim background - bình thường
     hearts: {
-        interval: 300,        // Mỗi bao lâu tạo 1 tim (ms) - GIỮ NHỎ = NHIỀU TIM
-        minDuration: 3,       // Thời gian bay tối thiểu (s)
-        maxDuration: 7,       // Thời gian bay tối đa (s)
-        minSize: 20,          // Kích thước tối thiểu (px)
-        maxSize: 40,          // Kích thước tối đa (px)
+        interval: 300,
+        minDuration: 3,
+        maxDuration: 7,
+        minSize: 20,
+        maxSize: 40,
     },
-    
-    // Tim lắp lánh khi mở quà
     heartsTwinkling: {
-        interval: 80,         // ⬅️ NHANH HƠN (từ 300 → 80)
-        minDuration: 2,       // Bay nhanh hơn
+        interval: 80,
+        minDuration: 2,
         maxDuration: 4,
-        minSize: 30,          // To hơn
+        minSize: 30,
         maxSize: 60,
     },
-    
-    // Ảnh rơi (mở quà)
     fallingImages: {
-        imagesPerSecond: 3,   // Số ảnh mỗi giây (2-3 = tự nhiên, 5+ = mưa nặng)
-        minDuration: 1.5,     // Thời gian bay tối thiểu (s)
-        maxDuration: 2.5,     // Thời gian bay tối đa (s)
-        scale: 0.1,           // Kích thước ảnh (0.3-0.6 = nhỏ gọn)
+        imagesPerSecond: 1,
+        minDuration: 3,
+        maxDuration: 5,
+        scale: 1,
     }
 };
 
@@ -39,39 +34,37 @@ const loginScreen = document.getElementById('loginScreen');
 const giftBox = document.getElementById('giftBox');
 const giftScreen = document.getElementById('giftScreen');
 const openGiftBtn = document.getElementById('openGiftBtn');
-const canvas = document.getElementById('fireworks');
-const ctx = canvas.getContext('2d');
 const heartsBackground = document.getElementById('heartsBackground');
-
-let particles = [];
+let allGiftImages = [];
 let usedGifts = [];
-let allGiftImages = []; // Sẽ được load từ folder
+let isRaining = false;
+let twinkling = false;
+let rainInterval = null;
 
-// ===== Load danh sách ảnh từ folder gifts =====
+// ===== Load 17 ảnh từ gifts/1.jpg → gifts/17.jpg =====
 async function loadGiftsList() {
-    try {
-        // Thử load từ 1-30 để support nhiều ảnh
-        for (let i = 1; i <= 30; i++) {
-            const img = new Image();
-            img.src = `gifts/${i}.jpg`;
-            img.onload = () => {
-                allGiftImages.push(`gifts/${i}.jpg`);
-            };
-            img.onerror = () => {
-                // Ảnh ko tồn tại, skip
-            };
-        }
-    } catch (e) {
-        console.log('Không load được ảnh từ folder');
+    allGiftImages = [];
+    const totalImages = 17;
+    
+    for (let i = 1; i <= totalImages; i++) {
+        const img = new Image();
+        img.src = `gifts/${i}.jpg`;
+        img.onload = () => {
+            allGiftImages.push(`gifts/${i}.jpg`);
+            if (allGiftImages.length === 1) loadFirstGift();
+        };
+        img.onerror = () => console.warn(`Không load được: gifts/${i}.jpg`);
     }
+    
+    setTimeout(() => {
+        if (allGiftImages.length === 0) {
+            allGiftImages = ['gifts/1.jpg'];
+            loadFirstGift();
+        }
+    }, 100);
 }
 
-// Load ảnh khi trang load
 loadGiftsList();
-
-// ===== Canvas setup =====
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
 
 // ===== Background Hearts =====
 function createBackgroundHearts() {
@@ -79,97 +72,133 @@ function createBackgroundHearts() {
         const heart = document.createElement('div');
         heart.className = 'heart';
         heart.textContent = '❤️';
-        heart.style.left = Math.random() * 100 + '%';
+        heart.style.left = Math.random() * 75 + '%';
         
-        // Size random
-        const randomSize = Math.random() * (CONFIG.hearts.maxSize - CONFIG.hearts.minSize) + CONFIG.hearts.minSize;
-        heart.style.fontSize = randomSize + 'px';
+        const size = Math.random() * (CONFIG.hearts.maxSize - CONFIG.hearts.minSize) + CONFIG.hearts.minSize;
+        heart.style.fontSize = size + 'px';
         
-        // Speed random
-        const randomDuration = Math.random() * (CONFIG.hearts.maxDuration - CONFIG.hearts.minDuration) + CONFIG.hearts.minDuration;
-        heart.style.animation = `heartRise ${randomDuration}s ease-in infinite`;
+        const duration = Math.random() * (CONFIG.hearts.maxDuration - CONFIG.hearts.minDuration) + CONFIG.hearts.minDuration;
+        heart.style.animation = `heartRise ${duration}s ease-in forwards`;
         
         heartsBackground.appendChild(heart);
-        
-        setTimeout(() => heart.remove(), randomDuration * 1000);
+        setTimeout(() => heart.remove(), duration * 1000);
     }, CONFIG.hearts.interval);
 }
 
 createBackgroundHearts();
 
-// ===== Xử lý nhấn nút số =====
-keypadButtons.forEach(button => {
-    button.addEventListener('click', function() {
-        if (inputPassword.length < PASSWORD.length) {
-            inputPassword += this.dataset.num;
-            updateDisplay();
-        }
-    });
+// ===== Keypad & Password =====
+keypadButtons.forEach(b => b.addEventListener('click', () => {
+    if (inputPassword.length < PASSWORD.length) {
+        inputPassword += b.dataset.num;
+        updateDisplay();
+        // Thêm hiệu ứng rung nhẹ
+        passwordDisplay.style.animation = 'none';
+        setTimeout(() => {
+            passwordDisplay.style.animation = 'inputPulse 0.3s ease';
+        }, 10);
+    }
+}));
+
+deleteBtn.addEventListener('click', () => {
+    if (inputPassword.length > 0) {
+        inputPassword = inputPassword.slice(0, -1);
+        updateDisplay();
+        // Hiệu ứng xóa
+        passwordDisplay.style.animation = 'none';
+        setTimeout(() => {
+            passwordDisplay.style.animation = 'inputShake 0.4s ease';
+        }, 10);
+    }
 });
 
-// ===== Xử lý nút xóa =====
-deleteBtn.addEventListener('click', function() {
-    inputPassword = inputPassword.slice(0, -1);
-    updateDisplay();
-});
-
-// ===== Xử lý nút Enter =====
 enterBtn.addEventListener('click', checkPassword);
 
-// ===== Hỗ trợ phím =====
-document.addEventListener('keydown', function(e) {
+document.addEventListener('keydown', e => {
     if (e.key === 'Enter') {
         checkPassword();
     } else if (e.key === 'Backspace') {
-        inputPassword = inputPassword.slice(0, -1);
-        updateDisplay();
-    } else if (e.key >= '0' && e.key <= '9') {
-        if (inputPassword.length < PASSWORD.length) {
-            inputPassword += e.key;
+        if (inputPassword.length > 0) {
+            inputPassword = inputPassword.slice(0, -1);
             updateDisplay();
         }
+    } else if (e.key >= '0' && e.key <= '9' && inputPassword.length < PASSWORD.length) {
+        inputPassword += e.key;
+        updateDisplay();
     }
 });
 
 function updateDisplay() {
-    passwordDisplay.value = 'x'.repeat(inputPassword.length);
+    // Hiển thị số thật thay vì 'x'
+    passwordDisplay.value = inputPassword;
     errorMessage.textContent = '';
-    errorMessage.style.color = '#ff72b4';
 }
 
-// ===== Kiểm tra mật khẩu =====
 function checkPassword() {
     if (inputPassword === PASSWORD) {
-        errorMessage.textContent = '✓ Đúng rồi! 20/11 vui vẻ! 🎉';
+        errorMessage.textContent = '✨ Đúng rồi! 20/11 vui vẻ! 🎉';
         errorMessage.style.color = '#4CAF50';
         errorMessage.style.fontWeight = 'bold';
         
-        setTimeout(() => {
-            moveScreenUp();
-        }, 500);
+        // Hiệu ứng thành công
+        passwordDisplay.style.animation = 'inputSuccess 0.6s ease';
+        
+        setTimeout(moveScreenUp, 600);
     } else {
-        // Báo sai + hướng dẫn
         const entered = inputPassword.length;
         const required = PASSWORD.length;
         
         if (entered === 0) {
-            errorMessage.textContent = '❌ Chưa nhập gì cả!';
+            errorMessage.textContent = '🤔 Chưa nhập gì!';
         } else if (entered < required) {
-            errorMessage.textContent = `❌ Sai rồi! Nhập ${entered}/${required} ký tự. Sửa lại đi!`;
+            errorMessage.textContent = `❌ Sai! Nhập ${entered}/${required} ký tự.`;
         } else {
-            errorMessage.textContent = `❌ Sai rồi! Xóa hết và thử lại.`;
+            errorMessage.textContent = '❌ Sai rồi! Xóa hết thử lại.';
         }
         
         errorMessage.style.color = '#FF6B6B';
         errorMessage.style.fontWeight = 'bold';
         
-        // Xóa và reset display
+        // Hiệu ứng rung khi sai
+        passwordDisplay.style.animation = 'none';
+        setTimeout(() => {
+            passwordDisplay.style.animation = 'inputError 0.5s ease';
+        }, 10);
+        
         inputPassword = '';
         updateDisplay();
     }
 }
 
-// ===== Chạy màn hình lên trên =====
+// ===== Thêm CSS animations động =====
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes inputPulse {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.02); }
+    }
+    
+    @keyframes inputShake {
+        0%, 100% { transform: translateX(0); }
+        25% { transform: translateX(-5px); }
+        75% { transform: translateX(5px); }
+    }
+    
+    @keyframes inputError {
+        0%, 100% { transform: translateX(0); border-color: #FF6B6B; }
+        10%, 30%, 50%, 70%, 90% { transform: translateX(-8px); }
+        20%, 40%, 60%, 80% { transform: translateX(8px); }
+    }
+    
+    @keyframes inputSuccess {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.05); border-color: #4CAF50; }
+        100% { transform: scale(1); }
+    }
+`;
+document.head.appendChild(style);
+
+// ===== Màn hình chuyển =====
 function moveScreenUp() {
     loginScreen.style.transform = 'translateY(-150vh)';
     loginScreen.style.opacity = '0';
@@ -180,155 +209,155 @@ function moveScreenUp() {
     }, 600);
 }
 
-// ===== Hiện hộp quà =====
 function showGiftBox() {
     giftBox.style.opacity = '1';
     giftBox.style.pointerEvents = 'auto';
     
-    setTimeout(() => {
-        showGiftScreen();
-    }, 500); // Tăng từ 2000ms → 3000ms để thấy animation lâu hơn
+    setTimeout(showGiftScreen, 500);
 }
 
-// ===== Hiện màn hình quà =====
 function showGiftScreen() {
     giftBox.style.opacity = '0';
     giftBox.style.pointerEvents = 'none';
     giftScreen.style.opacity = '1';
     giftScreen.style.pointerEvents = 'auto';
-    
-    loadFirstGift();
 }
 
-// ===== Load ảnh quà đầu tiên =====
+// ===== Load ảnh đầu =====
 function loadFirstGift() {
-    const giftImage = document.getElementById('giftImage');
-    const randomImage = getRandomGift();
-    giftImage.src = randomImage;
+    if (allGiftImages.length > 0) {
+        document.getElementById('giftImage').src = getRandomGift();
+    }
 }
 
-// ===== Lấy ảnh quà random (không trùng) =====
 function getRandomGift() {
-    if (allGiftImages.length === 0) {
-        return 'gifts/1.jpg'; // Fallback nếu ko load được ảnh
-    }
+    if (allGiftImages.length === 0) return 'gifts/1.jpg';
     
-    let availableGifts = [];
-    for (let i = 0; i < allGiftImages.length; i++) {
-        if (!usedGifts.includes(i)) {
-            availableGifts.push(i);
-        }
-    }
-    
-    // Reset nếu hết ảnh
-    if (availableGifts.length === 0) {
+    let available = allGiftImages.filter((_, i) => !usedGifts.includes(i));
+    if (available.length === 0) {
         usedGifts = [];
-        availableGifts = [];
-        for (let i = 0; i < allGiftImages.length; i++) {
-            availableGifts.push(i);
-        }
+        available = [...allGiftImages];
     }
     
-    const randomIndex = Math.floor(Math.random() * availableGifts.length);
-    const selectedIndex = availableGifts[randomIndex];
-    usedGifts.push(selectedIndex);
+    const idx = Math.floor(Math.random() * available.length);
+    const src = available[idx];
+    const globalIdx = allGiftImages.indexOf(src);
+    usedGifts.push(globalIdx);
     
-    return allGiftImages[selectedIndex];
+    return src;
 }
 
-// ===== Nút mở quà =====
+// ===== MỞ QUÀ: MƯA ẢNH VÔ TẬN + TO HƠN =====
 openGiftBtn.addEventListener('click', () => {
     openGift();
-    openGiftBtn.style.display = 'none'; // Ẩn nút sau khi nhấn
-    openGiftBtn.disabled = true;
+    
+    // Hiệu ứng nút biến mất
+    openGiftBtn.style.transform = 'scale(0) rotate(180deg)';
+    openGiftBtn.style.opacity = '0';
+    
+    setTimeout(() => {
+        openGiftBtn.style.display = 'none';
+        openGiftBtn.disabled = true;
+    }, 2000);
 });
-
-// ===== Mở quà - ảnh rơi như mưa =====
-let isRaining = false;
 
 function openGift() {
     if (isRaining) return;
     isRaining = true;
     
-    // Tim lắp lánh + nhanh hơn khi mở quà
     startHeartsTwinkling();
     
-    // Load ảnh quà mới
+    // Đổi ảnh chính với hiệu ứng
     setTimeout(() => {
-        const newImage = getRandomGift();
-        document.getElementById('giftImage').src = newImage;
+        const giftImg = document.getElementById('giftImage');
+        giftImg.style.animation = 'none';
+        
+        setTimeout(() => {
+            giftImg.src = getRandomGift();
+            giftImg.style.animation = 'imageAppear 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
+        }, 50);
     }, 500);
     
-    // Clone liên tục: theo CONFIG
-    const rainInterval = setInterval(() => {
-        const numImages = Math.floor(Math.random() * 2) + CONFIG.fallingImages.imagesPerSecond - 1;
-        
-        for (let i = 0; i < numImages; i++) {
+    // MƯA ẢNH VÔ TẬN
+    const imagesPerSecond = CONFIG.fallingImages.imagesPerSecond;
+    const intervalMs = 1000 / imagesPerSecond;
+    
+    rainInterval = setInterval(() => {
+        const count = Math.random() < 0.6 ? 1 : 2; // 60% rơi 1, 40% rơi 2
+        for (let i = 0; i < count; i++) {
             createFallingImage();
         }
-    }, 1000);
+    }, intervalMs);
 }
 
+// ===== Tạo ảnh rơi (TO HƠN + RANDOM 17 ẢNH) =====
 function createFallingImage() {
-    const fallingImg = document.createElement('img');
-    fallingImg.className = 'falling-image';
+    if (allGiftImages.length === 0) return;
     
-    // Lấy ảnh từ gift display hiện tại (clone từ ảnh đang hiển thị)
-    const currentGiftImage = document.getElementById('giftImage');
-    fallingImg.src = currentGiftImage.src; // Clone từ ảnh hiện tại
+    const img = document.createElement('img');
+    img.className = 'falling-image';
+    img.src = allGiftImages[Math.floor(Math.random() * allGiftImages.length)];
     
-    // Random vị trí rơi từ ngoài screen (gấp đôi screen width)
-    const randomLeft = Math.random() * 300 - 150; // -150% tới 150% (ngoài gấp đôi screen)
-    const randomDuration = 4; // Speed cố định 4s (linear = mượt)
+    const baseSize = 500;
+    const duration = CONFIG.fallingImages.minDuration + 
+                    Math.random() * (CONFIG.fallingImages.maxDuration - CONFIG.fallingImages.minDuration);
+    const leftPercent = 8 + Math.random() * 84; // 8% → 92%
     
-    // Style - Base size 200px sau đó scale theo config
-    const baseSize = 200; // Base size (px) - scale sẽ nhân từ đây
-    fallingImg.style.width = baseSize + 'px';
-    fallingImg.style.height = baseSize + 'px';
-    fallingImg.style.objectFit = 'contain'; // Giữ tỷ lệ ảnh
-    fallingImg.style.left = randomLeft + '%';
-    fallingImg.style.top = '-200px'; // Bắt đầu cao hơn (ngoài screen)
-    fallingImg.style.borderRadius = '12px';
-    fallingImg.style.animation = `imageFall ${randomDuration}s linear forwards`;
-    fallingImg.style.transform = `scale(${CONFIG.fallingImages.scale})`; // ⬅️ Scale từ 200px base
+    img.style.position = 'fixed';
+    img.style.width = baseSize + 'px';
+    img.style.height = baseSize + 'px';
+    img.style.objectFit = 'cover';
+    img.style.left = leftPercent + '%';
+    img.style.top = '-260px';
+    img.style.pointerEvents = 'none';
+    img.style.zIndex = '9999';
+    img.style.transform = `translateX(-50%) scale(${CONFIG.fallingImages.scale})`;
+    img.style.animation = `imageFall ${duration}s linear forwards, imageFadeOut ${duration}s linear forwards`;
     
-    document.body.appendChild(fallingImg);
+    document.body.appendChild(img);
     
-    setTimeout(() => fallingImg.remove(), randomDuration * 1000);
+    setTimeout(() => img.remove(), duration * 1000 + 200);
 }
 
-// ===== Tim lắp lánh khi mở quà =====
-let twinkling = false;
-
+// ===== Tim lắp lánh =====
 function startHeartsTwinkling() {
     if (twinkling) return;
     twinkling = true;
     
-    // Dừng tim bình thường
     document.querySelectorAll('.heart').forEach(h => h.remove());
     
-    // Tạo tim lắp lánh nhanh hơn
     const twinkleInterval = setInterval(() => {
         const heart = document.createElement('div');
         heart.className = 'heart';
         heart.textContent = '❤️';
         heart.style.left = Math.random() * 100 + '%';
         
-        const randomSize = Math.random() * (CONFIG.heartsTwinkling.maxSize - CONFIG.heartsTwinkling.minSize) + CONFIG.heartsTwinkling.minSize;
-        heart.style.fontSize = randomSize + 'px';
+        const size = Math.random() * (CONFIG.heartsTwinkling.maxSize - CONFIG.heartsTwinkling.minSize) + CONFIG.heartsTwinkling.minSize;
+        heart.style.fontSize = size + 'px';
         
-        const randomDuration = Math.random() * (CONFIG.heartsTwinkling.maxDuration - CONFIG.heartsTwinkling.minDuration) + CONFIG.heartsTwinkling.minDuration;
-        heart.style.animation = `heartRise ${randomDuration}s ease-in infinite`;
+        const duration = Math.random() * (CONFIG.heartsTwinkling.maxDuration - CONFIG.heartsTwinkling.minDuration) + CONFIG.heartsTwinkling.minDuration;
+        heart.style.animation = `heartRise ${duration}s ease-in forwards`;
         
         heartsBackground.appendChild(heart);
-        
-        setTimeout(() => heart.remove(), randomDuration * 1000);
+        setTimeout(() => heart.remove(), duration * 1000);
     }, CONFIG.heartsTwinkling.interval);
+    
+    setTimeout(() => {
+        clearInterval(twinkleInterval);
+        twinkling = false;
+        // Không khôi phục tim nền → để mưa ảnh nổi bật
+    }, 5000);
 }
 
-
-// ===== Responsive canvas =====
-window.addEventListener('resize', () => {
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
+// ===== Easter Egg: Click vào ảnh để đổi ảnh mới =====
+document.getElementById('giftImage').addEventListener('click', function() {
+    if (isRaining) {
+        this.style.animation = 'none';
+        setTimeout(() => {
+            this.src = getRandomGift();
+            this.style.animation = 'imageAppear 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
+        }, 50);
+    }
 });
+
+console.log('🎉 Happy Teacher\'s Day 20/11! 🎉');

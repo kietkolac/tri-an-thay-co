@@ -4,29 +4,465 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Tri Ân Thầy Cô 20/11</title>
-    <link rel="stylesheet" href="css/styles.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .hearts-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+            overflow: hidden;
+        }
+
+        .heart {
+            position: absolute;
+            bottom: -50px;
+            opacity: 0.7;
+            pointer-events: none;
+            filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.6));
+        }
+
+        @keyframes heartRise {
+            0% {
+                transform: translateY(0) rotate(0deg);
+                opacity: 0.7;
+            }
+            100% {
+                transform: translateY(-120vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        /* Container - Fixed */
+        .login-container {
+            position: relative;
+            z-index: 10;
+            width: 100%;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        /* Login Screen - Fixed */
+        .login-screen {
+            transition: all 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            position: absolute;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .login-box {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 20px 25px;
+            border-radius: 25px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3),
+                        0 0 0 1px rgba(255, 255, 255, 0.5) inset;
+            max-width: 400px;
+            width: 100%;
+            text-align: center;
+        }
+
+        .avatar-section {
+            margin-bottom: 20px;
+        }
+
+        .avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid #fff;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2),
+                        0 0 0 3px rgba(102, 126, 234, 0.3);
+            transition: transform 0.3s ease;
+        }
+
+        .avatar:hover {
+            transform: scale(1.05) rotate(5deg);
+        }
+
+        .login-title {
+            font-size: 20px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 20px;
+            text-shadow: 0 2px 10px rgba(102, 126, 234, 0.2);
+        }
+
+        .password-display {
+            margin-bottom: 20px;
+        }
+
+        .display-input {
+            width: 100%;
+            padding: 15px 18px;
+            font-size: 24px;
+            font-weight: 600;
+            text-align: center;
+            border: 3px solid #667eea;
+            border-radius: 18px;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            color: #667eea;
+            letter-spacing: 6px;
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.2),
+                        inset 0 2px 5px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+        }
+
+        .display-input:focus {
+            outline: none;
+            border-color: #764ba2;
+            box-shadow: 0 8px 25px rgba(118, 75, 162, 0.3),
+                        inset 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+
+        .display-input::placeholder {
+            color: rgba(102, 126, 234, 0.4);
+            letter-spacing: normal;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .keypad {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 18px;
+        }
+
+        .key {
+            padding: 16px;
+            font-size: 20px;
+            font-weight: 700;
+            border: none;
+            border-radius: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4),
+                        0 0 0 1px rgba(255, 255, 255, 0.2) inset;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .key::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.5s, height 0.5s;
+        }
+
+        .key:active::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        .key:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.5),
+                        0 0 0 1px rgba(255, 255, 255, 0.3) inset;
+        }
+
+        .key:active {
+            transform: translateY(0) scale(0.98);
+        }
+
+        .delete-key {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            box-shadow: 0 6px 20px rgba(245, 87, 108, 0.4);
+        }
+
+        .delete-key:hover {
+            box-shadow: 0 10px 25px rgba(245, 87, 108, 0.5);
+        }
+
+        .enter-key {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            box-shadow: 0 6px 20px rgba(79, 172, 254, 0.4);
+        }
+
+        .enter-key:hover {
+            box-shadow: 0 10px 25px rgba(79, 172, 254, 0.5);
+        }
+
+        .error-message {
+            min-height: 22px;
+            font-size: 14px;
+            font-weight: 600;
+            text-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .gift-box {
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.5s ease;
+            position: absolute;
+        }
+
+        .gift-box-content {
+            position: relative;
+            width: 160px;
+            height: 180px;
+        }
+
+        .gift-lid {
+            position: absolute;
+            width: 180px;
+            height: 35px;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            border-radius: 12px 12px 0 0;
+            top: -8px;
+            left: -10px;
+            box-shadow: 0 5px 20px rgba(245, 87, 108, 0.5);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 12px;
+            color: white;
+            font-weight: 700;
+            font-size: 10px;
+            animation: lidFloat 2s ease-in-out infinite;
+        }
+
+        @keyframes lidFloat {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .gift-body {
+            position: absolute;
+            width: 160px;
+            height: 145px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.5);
+            top: 27px;
+        }
+
+        .gift-body::before {
+            content: '🎁';
+            position: absolute;
+            font-size: 65px;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .gift-screen {
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.5s ease;
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .gift-result-box {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 30px 25px;
+            border-radius: 25px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3),
+                        0 0 0 1px rgba(255, 255, 255, 0.5) inset;
+            max-width: 420px;
+            width: 100%;
+            text-align: center;
+        }
+
+        .gift-image {
+            width: 100%;
+            max-width: 300px;
+            height: auto;
+            aspect-ratio: 1;
+            object-fit: cover;
+            border-radius: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3),
+                        0 0 0 4px rgba(255, 255, 255, 0.8),
+                        0 0 0 8px rgba(102, 126, 234, 0.3);
+            transition: transform 0.5s ease;
+            animation: imageAppear 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes imageAppear {
+            0% {
+                opacity: 0;
+                transform: scale(0.5);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .gift-image:hover {
+            transform: scale(1.02);
+        }
+
+        .gift-message {
+            font-size: 19px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 12px;
+        }
+
+        .gift-thanks {
+            font-size: 15px;
+            color: #666;
+            font-weight: 500;
+            margin-bottom: 20px;
+            font-style: italic;
+        }
+
+        .open-gift-btn {
+            padding: 14px 35px;
+            font-size: 18px;
+            font-weight: 700;
+            border: none;
+            border-radius: 18px;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            cursor: pointer;
+            box-shadow: 0 10px 30px rgba(245, 87, 108, 0.4);
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .open-gift-btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.5s, height 0.5s;
+        }
+
+        .open-gift-btn:active::before {
+            width: 400px;
+            height: 400px;
+        }
+
+        .open-gift-btn:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 15px 40px rgba(245, 87, 108, 0.5);
+        }
+
+        .open-gift-btn:active {
+            transform: translateY(0) scale(0.98);
+        }
+
+        .falling-image {
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3),
+                        0 0 0 3px rgba(255, 255, 255, 0.8);
+            animation: imageFall linear forwards;
+        }
+
+        @keyframes imageFall {
+            0% {
+                transform: translateX(-50%) scale(0.35);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateX(-50%) scale(0.35) translateY(calc(100vh + 300px));
+                opacity: 0;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .login-box, .gift-result-box {
+                padding: 25px 20px;
+                max-width: 95%;
+            }
+
+            .avatar {
+                width: 85px;
+                height: 85px;
+            }
+
+            .login-title {
+                font-size: 18px;
+            }
+
+            .display-input {
+                font-size: 20px;
+                padding: 12px;
+            }
+
+            .key {
+                padding: 14px;
+                font-size: 18px;
+            }
+
+            .gift-message {
+                font-size: 17px;
+            }
+        }
+    </style>
 </head>
 <body>
-    <!-- Background trái tim bay -->
     <div class="hearts-background" id="heartsBackground"></div>
 
-    <!-- Container chính -->
     <div class="login-container">
-        <!-- Màn hình nhập mật khẩu -->
         <div class="login-screen" id="loginScreen">
             <div class="login-box">
-            <!-- Avatar tròn -->
-            <div class="avatar-section">
-                <img id="titleImage" src="avatar.png" alt="Avatar" class="avatar">
-            </div>                <!-- Tiêu đề -->
+                <div class="avatar-section">
+                    <img id="titleImage" src="avatar.png" alt="Avatar" class="avatar">
+                </div>
+                
                 <h2 class="login-title">Nhập 1102025 để mở quà ❤️</h2>
-
-                <!-- Display số đã nhập -->
+                
                 <div class="password-display">
                     <input type="text" id="passwordDisplay" class="display-input" readonly placeholder="Nhập đây nè <3...">
                 </div>
-
-                <!-- Bàn phím số -->
+                
                 <div class="keypad">
                     <button class="key" data-num="1">1</button>
                     <button class="key" data-num="2">2</button>
@@ -44,13 +480,11 @@
                     <button class="key" data-num="0">0</button>
                     <button class="key enter-key" id="enterBtn">Oke</button>
                 </div>
-
-                <!-- Thông báo lỗi -->
+                
                 <div id="errorMessage" class="error-message"></div>
             </div>
         </div>
 
-        <!-- Hộp quà mở ra -->
         <div class="gift-box" id="giftBox">
             <div class="gift-box-content">
                 <div class="gift-lid">
@@ -61,26 +495,18 @@
             </div>
         </div>
 
-        <!-- Màn hình quà -->
         <div class="gift-screen" id="giftScreen">
             <div class="gift-result-box">
-                <!-- Ảnh quà -->
                 <img id="giftImage" src="" alt="Gift" class="gift-image">
                 
-                <!-- Text chúc -->
                 <p class="gift-message">Chúc thầy cô ngày 20/11 an lành, vui vẻ! 🎉</p>
                 
-                <!-- Text cảm ơn -->
                 <p class="gift-thanks">Cảm ơn vì những bài dạy quý báu!</p>
                 
-                <!-- Nút mở quà -->
                 <button id="openGiftBtn" class="open-gift-btn">Mở Quà ✨</button>
             </div>
         </div>
     </div>
-
-    <!-- Canvas cho hiệu ứng -->
-    <canvas id="fireworks"></canvas>
 
     <script src="js/main.js"></script>
 </body>

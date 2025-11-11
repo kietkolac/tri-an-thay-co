@@ -317,20 +317,17 @@ body {
     z-index: 9999;
 }
 
-/* Falling Images */
-.falling-image {
-    position: fixed;
-    z-index: 30;
-    animation: imageFall 3s ease-in forwards;
-}
-
 @keyframes imageFall {
     0% {
-        transform: translateY(-100px) rotate(0deg) scale(1);
+        transform: translateX(-50%) scale(1);
         opacity: 1;
     }
     100% {
-        transform: translateY(100vh) rotate(360deg) scale(1);
+        transform: translateX(-50%) translateY(250vh) scale(1.25);
         opacity: 0;
     }
+}
+
+.falling-image {
+    animation-fill-mode: forwards;
 }
