@@ -131,14 +131,12 @@ document.addEventListener('keydown', function(e) {
     }
 });
 
-// ===== Cập nhật display =====
 function updateDisplay() {
     passwordDisplay.value = 'x'.repeat(inputPassword.length);
-    errorMessage.textContent = ''; // Xóa thông báo cũ
-    errorMessage.style.color = '#ff72b4'; // Reset color mặc định
+    errorMessage.textContent = '';
+    errorMessage.style.color = '#ff72b4';
 }
 
-// ===== Kiểm tra mật khẩu =====
 function checkPassword() {
     if (inputPassword === PASSWORD) {
         errorMessage.textContent = '✓ Đúng rồi! 20/11 vui vẻ! 🎉';

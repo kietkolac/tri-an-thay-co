@@ -174,13 +174,13 @@ body {
 }
 
 .delete-key {
-    background: linear-gradient(135deg, #ff72b4 0%, #ff99cc 100%);
+    background: linear-gradient(135deg, #ff0077 0%, #b3095e 100%);
     border-color: #ff72b4;
 }
 
 .enter-key {
-    background: linear-gradient(135deg, #ff99cc 0%, #ffb3d9 100%);
-    border-color: #ff72b4;
+    background: linear-gradient(135deg, #99ffc0 0%, #00ff40 100%);
+    border-color: #05752b;
 }
 
 .error-message {
