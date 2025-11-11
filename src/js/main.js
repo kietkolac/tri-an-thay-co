@@ -53,7 +53,7 @@ async function loadGiftsList() {
         // Thử load từ 1-30 để support nhiều ảnh
         for (let i = 1; i <= 30; i++) {
             const img = new Image();
-            img.src = `gifts/${i}.jpg`;
+            img.src = `/gifts/${i}.jpg`;
             img.onload = () => {
                 allGiftImages.push(`gifts/${i}.jpg`);
             };
@@ -133,7 +133,7 @@ document.addEventListener('keydown', function(e) {
 
 // ===== Cập nhật display =====
 function updateDisplay() {
-    passwordDisplay.value = '●'.repeat(inputPassword.length);
+    passwordDisplay.value = 'x'.repeat(inputPassword.length);
     errorMessage.textContent = ''; // Xóa thông báo cũ
     errorMessage.style.color = '#ff72b4'; // Reset color mặc định
 }
@@ -164,9 +164,9 @@ function checkPassword() {
         errorMessage.style.color = '#FF6B6B';
         errorMessage.style.fontWeight = 'bold';
         
-        // Xóa input nhưng KHÔNG xóa thông báo lỗi
+        // Xóa và reset display
         inputPassword = '';
-        passwordDisplay.value = ''; // Clear display mà ko gọi updateDisplay()
+        updateDisplay();
     }
 }
 
