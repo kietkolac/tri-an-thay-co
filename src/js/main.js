@@ -53,7 +53,7 @@ async function loadGiftsList() {
         // Thử load từ 1-30 để support nhiều ảnh
         for (let i = 1; i <= 30; i++) {
             const img = new Image();
-            img.src = `/gifts/${i}.jpg`;
+            img.src = `gifts/${i}.jpg`;
             img.onload = () => {
                 allGiftImages.push(`gifts/${i}.jpg`);
             };
